@@ -20,8 +20,63 @@ import {
   Quote
 } from 'lucide-react';
 
+interface FormData {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+}
+
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev: FormData) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Format message for WhatsApp
+    const whatsappMessage = `Halo, saya ingin berkonsultasi tentang proyek konstruksi.
+
+*Data Konsultasi:*
+Nama: ${formData.name}
+Email: ${formData.email}
+Telepon: ${formData.phone}
+
+*Pesan:*
+${formData.message}
+
+Saya tertarik dengan layanan PT Arta Persada Construction. Mohon informasi lebih lanjut.`;
+
+    // Encode message for URL
+    const encodedMessage = encodeURIComponent(whatsappMessage);
+    
+    // WhatsApp API URL
+    const whatsappUrl = `https://wa.me/6285234125031?text=${encodedMessage}`;
+    
+    // Open WhatsApp in new tab
+    window.open(whatsappUrl, '_blank');
+    
+    // Reset form
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      message: ''
+    });
+  };
 
   const services = [
     {
@@ -468,13 +523,16 @@ function App() {
 
             <div className="bg-white p-8 rounded-2xl">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Kirim Pesan</h3>
-              <form className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Nama Lengkap
                   </label>
                   <input
                     type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Masukkan nama lengkap"
                   />
@@ -485,6 +543,9 @@ function App() {
                   </label>
                   <input
                     type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Masukkan email"
                   />
@@ -495,6 +556,9 @@ function App() {
                   </label>
                   <input
                     type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Masukkan nomor telepon"
                   />
@@ -505,6 +569,9 @@ function App() {
                   </label>
                   <textarea
                     rows={4}
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Ceritakan tentang proyek Anda..."
                   ></textarea>
